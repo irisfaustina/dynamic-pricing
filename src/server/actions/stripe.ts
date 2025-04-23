@@ -84,7 +84,7 @@ export async function createCheckoutSession(tier: PaidTierNames) {
     const url = await getCheckoutSession(tier, user)
     if (url == null) return { error: true }
     redirect(url)
-  } else {
+  } else { /* when we don't have a subscription & want to upgrade */
     const url = await getSubscriptionUpgradeSession(tier, subscription)
     redirect(url)
   }
