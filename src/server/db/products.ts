@@ -8,6 +8,7 @@ import { removeTrailingSlash } from "@/lib/utils";
 import { and, count, eq, inArray, sql } from "drizzle-orm";
 import { BatchItem } from "drizzle-orm/batch";
 
+//The external functions (exported ones like getProduct, createProduct, etc.) serve as the public API for database interactions. 
 // Exported functions
 export function getProductCountryGroups({ productId, userId }: { productId: string, userId: string }){
     const cacheFn = dbCache(getProductCountryGroupsInternal, {
@@ -52,7 +53,7 @@ export function getProductCount(userId: string) {
     return cacheFn(userId)
 }
 
-export function getProductForBanner({
+export function getProductForBanner({ /* non-internal function */
   id,
   countryCode,
   url,
@@ -209,7 +210,8 @@ export async function updateProductCustomization(
     })
   }
 //internal functions
-async function getProductCountryGroupsInternal({productId, userId}: {productId: string, userId: string}){
+//The internal functions (like getProductsInternal, getProductInternal) handle the actual database operations:
+async function getProductCountryGroupsInternal({productId, userId}: {productId: string, userId: string}){ 
     const product = await getProduct({id: productId, userId})
     if (product == null) return [] /* guarantees that the user has access to products */
     
@@ -226,7 +228,7 @@ async function getProductCountryGroupsInternal({productId, userId}: {productId: 
                     coupon: true,
                     discountPercentage: true
                 },
-                where: (({ productId: id }, { eq }) => eq( id, productId)),
+                where: (({ productId: id }, { eq }) => eq( id, productId)), /* where id is equal to  */
                 limit: 1
             }
         }
@@ -284,31 +286,31 @@ async function getProductForBannerInternal({
     countryCode: string
     url: string
   }) {
-    const data = await db.query.ProductTable.findFirst({
-      where: ({ id: idCol, url: urlCol }, { eq, and }) =>
+    const data = await db.query.ProductTable.findFirst({ /* get product by id and url */
+      where: ({ id: idCol, url: urlCol }, { eq, and }) => 
         and(eq(idCol, id), eq(urlCol, removeTrailingSlash(url))),
       columns: {
         id: true,
         clerkUserId: true,
       },
       with: {
-        productCustomization: true,
-        countryGroupDiscounts: {
+        productCustomization: true, /* get product customization */
+        countryGroupDiscounts: { /* get country group discounts, specify only certain columns */
           columns: {
             coupon: true,
             discountPercentage: true,
           },
           with: {
-            countryGroup: {
-              columns: {},
+            countryGroup: { /* get country group */
+              columns: {}, 
               with: {
-                countries: {
-                  columns: {
+                countries: { /* get countries themselves */
+                  columns: { /* for countries only get column id and name */
                     id: true,
                     name: true,
                   },
-                  limit: 1,
-                  where: ({ code }, { eq }) => eq(code, countryCode),
+                  limit: 1, /* only get one country */
+                  where: ({ code }, { eq }) => eq(code, countryCode), /* get country for specific code */
                 },
               },
             },
@@ -317,11 +319,11 @@ async function getProductForBannerInternal({
       },
     })
   
-    const discount = data?.countryGroupDiscounts.find(
+    const discount = data?.countryGroupDiscounts.find( /* find discount for specific country */
       discount => discount.countryGroup.countries.length > 0
     )
-    const country = discount?.countryGroup.countries[0]
-    const product =
+    const country = discount?.countryGroup.countries[0] /* because we only got one country */
+    const product = /* all product related info */
       data == null || data.productCustomization == null
         ? undefined
         : {
@@ -331,14 +333,14 @@ async function getProductForBannerInternal({
           }
   
     return {
-      product,
+      product, /* all can be undefiend */
       country,
       discount:
         discount == null
           ? undefined
           : {
-              coupon: discount.coupon,
-              percentage: discount.discountPercentage,
+              coupon: discount.coupon, /* coupon code for that country */
+              percentage: discount.discountPercentage, /* discount percentage for that country */
             },
     }
   }

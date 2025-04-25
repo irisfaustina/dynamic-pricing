@@ -6,7 +6,7 @@ import { UserSubscriptionTable } from '@/drizzle/schema'
 import { db } from '@/drizzle/db'
 import { createUserSubscription, getUsersSubscription } from '@/server/db/subscription'
 import { deleteUser } from '@/server/db/users'
-import { Stripe } from 'stripe'
+import { Stripe } from 'stripe' /* for deleting users from clerk */
 
 const stripe = new Stripe(env.STRIPE_SECRET_KEY)
 
@@ -58,9 +58,9 @@ export async function POST(req: Request) {
     }
     case "user.deleted": {
       if(evt.data.id != null){
-        const userSubscription = await getUsersSubscription(evt.data.id)
-        if (userSubscription?.stripeSubscriptionId != null) {
-          await stripe.subscriptions.cancel(userSubscription?.stripeSubscriptionId)
+        const userSubscription = await getUsersSubscription(evt.data.id) /* get the user's subscription */
+        if (userSubscription?.stripeSubscriptionId != null) { /* only cancel if the user has a subscription */
+          await stripe.subscriptions.cancel(userSubscription?.stripeSubscriptionId) /* pass in id to cancel the subscription */
         }
         await deleteUser(evt.data.id)
       }
