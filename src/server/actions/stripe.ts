@@ -31,7 +31,7 @@ export async function createCancelSession() {
       redirect('/dashboard/subscription');
     }
 
-    const portalSession = await stripe.billingPortal.sessions.create({
+    const portalSession = await stripe.billingPortal.sessions.create({ /* specify which sub we're cancelling and create a url that directs to cancelling */
       customer: subscription.stripeCustomerId,
       return_url: `${clientEnv.NEXT_PUBLIC_SERVER_URL}/dashboard/subscription`,
       flow_data: {
@@ -128,7 +128,7 @@ async function getSubscriptionUpgradeSession(
     throw new Error()
   }
 
-  const portalSession = await stripe.billingPortal.sessions.create({
+  const portalSession = await stripe.billingPortal.sessions.create({ /* bring them to the exact billing portal to the brand new subscription */
     customer: subscription.stripeCustomerId,
     return_url: `${clientEnv.NEXT_PUBLIC_SERVER_URL}/dashboard/subscription`,
     flow_data: {
@@ -139,7 +139,7 @@ async function getSubscriptionUpgradeSession(
       {
             id: subscription.stripeSubscriptionItemId,
         price: subscriptionTiers[tier].stripePriceId,
-        quantity: 1,
+        quantity: 1, /* quantity is 1 because we are upgrading */
       },
     ],
       },
