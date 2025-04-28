@@ -20,7 +20,7 @@ export async function createProductView({
   countryId?: string
   userId: string
 }) {
-  const [newRow] = await db
+  const [newRow] = await db /* creating product view */
     .insert(ProductViewTable)
     .values({
       productId: productId,

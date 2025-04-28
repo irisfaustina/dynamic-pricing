@@ -1,6 +1,5 @@
 //so in db.ts we can use this
 
-import "dotenv/config";
 import { createEnv } from "@t3-oss/env-nextjs"; /* Deploying your app with invalid environment variables is a hassle. This package helps you to avoid that.*/
 import { z } from "zod"; /* For validation. The goal is to eliminate duplicative type declarations. With Zod, you declare a validator once and Zod will automatically infer the static TypeScript type. It's easy to compose simpler types into complex data structures. */
 

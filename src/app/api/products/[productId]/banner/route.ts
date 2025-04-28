@@ -8,12 +8,14 @@ import { notFound } from "next/navigation"
 import { NextRequest } from "next/server"
 import { createElement } from "react"
 
-export const runtime = "edge"
+//can the user see this js
+export const runtime = "nodejs"
 
 export async function GET( /* get request product banner api*/
   request: NextRequest,
-  { params: { productId } }: { params: { productId: string } } /* get product id */
+  context: { params: { productId: string } } /* get product id */
 ) {
+  const { productId } = await context.params
   const headersMap = headers() /* api headers */
   const requestingUrl = (await headersMap).get("referer") || (await headersMap).get("origin") /* determine what url the user is calling our site from, so product is associated with the right url*/
   if (requestingUrl == null) return notFound() /* any one that calls the code from not the right url */
@@ -28,7 +30,7 @@ export async function GET( /* get request product banner api*/
 
   if (product == null) return notFound()
 
-  const canShowBanner = await canShowDiscountBanner(product.clerkUserId)
+  const canShowBanner = await canShowDiscountBanner(product.clerkUserId) /* permission to create */
 
   await createProductView({
     productId: product.id,
@@ -57,7 +59,7 @@ function getCountryCode(request: NextRequest) { /* to validate what country is t
   }
 }
 
-async function getJavaScript(
+async function getJavaScript( /* once checks passed return js */
   product: {
     customization: {
       locationMessage: string
@@ -73,23 +75,32 @@ async function getJavaScript(
   discount: { coupon: string; percentage: number },
   canRemoveBranding: boolean
 ) {
-  const { renderToStaticMarkup } = await import("react-dom/server")
-  return `
-    const banner = document.createElement("div");
-    banner.innerHTML = '${renderToStaticMarkup(
-      createElement(Banner, {
-        message: product.customization.locationMessage,
-        mappings: {
-          country: country.name,
-          coupon: discount.coupon,
-          discount: (discount.percentage * 100).toString(),
-        },
-        customization: product.customization,
-        canRemoveBranding,
-      })
-    )}';
-    document.querySelector("${
-      product.customization.bannerContainer
-    }").prepend(...banner.children);
-  `.replace(/(\r\n|\n|\r)/g, "")
+  const { renderToStaticMarkup } = await import("react-dom/server") /* dynamic import nextjs, render to static markup */
+  const html = renderToStaticMarkup(
+    createElement(Banner, {
+      message: product.customization.locationMessage,
+      mappings: {
+        country: country.name,
+        coupon: discount.coupon,
+        discount: (discount.percentage * 100).toString(),
+      },
+      customization: product.customization,
+      canRemoveBranding,
+    })
+  )
+  .replace(/'/g, "\\'") // Escape single quotes
+  .replace(/"/g, '\\"') // Escape double quotes
+  
+  const script = `
+    (function() {
+       const banner = document.createElement("div");
+      banner.innerHTML = "${html}";
+      const container = document.querySelector("${product.customization.bannerContainer}");
+      if (container) {
+        container.prepend(...banner.children);
+      }
+    })();
+  `
+  
+  return script.replace(/(\r\n|\n|\r)/g, "")
 }

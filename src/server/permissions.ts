@@ -33,7 +33,7 @@ export async function canShowDiscountBanner(userId: string | null) {
     const tier = await getUsersSubscriptionTier(userId)
     const productViews = await getProductViewCount(
       userId,
-      startOfMonth(new Date())
+      startOfMonth(new Date()) /* getting all the count of product views for the current month */
     )
-    return productViews < tier.maxNumberOfVisits
+    return productViews < tier.maxNumberOfVisits /* user can still create new product but prod count needs to be less than max prod allowed */
   }
