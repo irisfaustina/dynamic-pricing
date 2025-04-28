@@ -1,7 +1,8 @@
 "use client";
 
-import { ChartContainer } from "@/components/ui/chart";
-import { BarChart, XAxis, YAxis } from "recharts";
+import { ChartContainer, ChartTooltip, ChartTooltipContent } from "@/components/ui/chart";
+import { formatCompactNumber } from "@/lib/formatters";
+import { Bar, BarChart, XAxis, YAxis, ResponsiveContainer } from "recharts";
 
 /* when dealing with charts */
 
@@ -15,9 +16,9 @@ export function ViewsByCountryChart({
   }[];
 }) {
   const chartConfig = {
-    views: {
+    views: { /* only thing that we're showing */
       label: "Visitors",
-      color: "hsl(var(--accent))",
+      color: "hsl(var(--accent))", /* based on accent variable */
     },
   };
   if (chartData.length === 0) {
@@ -33,9 +34,14 @@ export function ViewsByCountryChart({
     <ChartContainer
       config={chartConfig}
       className="min-h-[150px] max-h-[250px] w-full">
-      <BarChart accessibilityLayer data={chartData}>
-        <XAxis dataKey="countryCode" tickLine={false} tickMargin={10} />
-      </BarChart>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart accessibilityLayer data={chartData}>
+          <XAxis dataKey="countryCode" tickLine={false} tickMargin={10} />
+          <YAxis tickLine={false} tickMargin={10} allowDecimals={false} tickFormatter={formatCompactNumber}/>
+          <ChartTooltip content={<ChartTooltipContent nameKey="countryName"/>}/>
+          <Bar dataKey="views" fill="var(--color-views)"/>{/* render number of views */}
+        </BarChart>
+      </ResponsiveContainer>
     </ChartContainer>
   )
 }

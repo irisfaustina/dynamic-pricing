@@ -8,18 +8,18 @@ import { ViewsByCountryChart } from "../_components/charts/ViewsByCountryChart"
 export default async function AnalyticsPage({
     searchParams
 }:{
-    searchParams: {
+    searchParams: Promise<{
         interval?: string
         timezone?: string
         productId?: string
-    }
+    }>
 }) {
     const { userId, redirectToSignIn } = await auth() /* clerk component, private page protection*/
     if (userId == null) return redirectToSignIn() /* return if user is not signed in */
 
-    const interval = CHART_INTERNVALS[searchParams.interval as keyof typeof CHART_INTERNVALS] ?? CHART_INTERNVALS.last7Days
-    const timezone = searchParams.timezone || "UTC"
-    const productId = searchParams.productId
+    const interval = CHART_INTERNVALS[(await searchParams).interval as keyof typeof CHART_INTERNVALS] ?? CHART_INTERNVALS.last7Days
+    const timezone = (await searchParams).timezone || "UTC"
+    const productId = (await searchParams).productId
   
     return (
         <>
