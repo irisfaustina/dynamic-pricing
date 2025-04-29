@@ -9,6 +9,8 @@ import { NextRequest } from "next/server"
 import { createElement } from "react"
 
 //can the user see this js
+//export const runtime = "nodejs"
+
 export const runtime = "nodejs"
 
 export async function GET( /* get request product banner api*/

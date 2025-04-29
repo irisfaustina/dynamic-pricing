@@ -101,7 +101,7 @@ export default async function AnalyticsPage({
                     UTC
                   </Link>
                 </DropdownMenuItem>
-                <TimezoneDropdownMenuItem searchParams={await searchParams} timezone={""} />
+                <TimezoneDropdownMenuItem searchParams={await searchParams} />
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
