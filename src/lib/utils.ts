@@ -10,17 +10,25 @@ export function removeTrailingSlash(path: string){ /* for src/schema/products */
 }
 
 export function createURL(
-  href:string, 
-  oldParams: Record<string, string>,
-  newParam:  Record<string, string | undefined>,
+  href: string,
+  oldParams: Record<string, string | undefined>,
+  newParam: Record<string, string | undefined>,
 ) {
-  const params = new URLSearchParams(oldParams)
+  // Filter out undefined values from oldParams
+  const filteredOldParams = Object.fromEntries(
+    Object.entries(oldParams).filter(([_, value]) => value !== undefined)
+  ) as Record<string, string>
+
+  const params = new URLSearchParams(filteredOldParams)
+
+  // Handle new parameters
   Object.entries(newParam).forEach(([key, value]) => {
-    if (value == undefined){
+    if (value === undefined) {
       params.delete(key)
     } else {
       params.set(key, value)
     }
   })
+
   return `${href}?${params.toString()}`
 }
