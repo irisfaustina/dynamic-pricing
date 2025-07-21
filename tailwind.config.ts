@@ -9,7 +9,40 @@ const config: Config = {
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-  	extend: {
+    extend: {
+      animation: {
+        'gradient': 'gradient 8s linear infinite',
+        'gradient-slow': 'gradient 12s linear infinite',
+        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+        'bounce-x': 'bounce-x 1s infinite',
+        'grid-flow': 'grid-flow 20s linear infinite',
+      },
+      keyframes: {
+        'gradient': {
+          '0%, 100%': {
+            'background-size': '200% 200%',
+            'background-position': 'left center'
+          },
+          '50%': {
+            'background-size': '200% 200%',
+            'background-position': 'right center'
+          }
+        },
+        'bounce-x': {
+          '0%, 100%': {
+            transform: 'translateX(0)',
+            'animation-timing-function': 'cubic-bezier(0.8, 0, 1, 1)'
+          },
+          '50%': {
+            transform: 'translateX(25%)',
+            'animation-timing-function': 'cubic-bezier(0, 0, 0.2, 1)'
+          }
+        },
+        'grid-flow': {
+          '0%': { transform: 'translateY(0)' },
+          '100%': { transform: 'translateY(-100%)' }
+        }
+      },
   		container: {
   			center: true,
   			padding: '1.5rem',
